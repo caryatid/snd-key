@@ -141,7 +141,24 @@ _take () {
         done
     done
 }
-
+_print_interval () {
+    local interval=$(_get_note $(_get_distance $1 $2) $TMP/intervals)
+    case $interval in
+    1=) echo $(_get_note $2) root ;;
+    2_) echo $(_get_note $2) lowered second ;;
+    2=) echo $(_get_note $2) second ;;
+    3_) echo $(_get_note $2) lowered third ;;
+    3=) echo $(_get_note $2) third ;;
+    4=) echo $(_get_note $2) fourth ;;
+    5_) echo $(_get_note $2) lowered fifth ;;
+    5=) echo $(_get_note $2) fifth ;;
+    6_) echo $(_get_note $2) lowered sixth ;;
+    6=) echo $(_get_note $2) sixth ;;
+    7_) echo $(_get_note $2) lowered seventh ;;
+    7=) echo $(_get_note $2) seventh ;;
+    esac
+}
+    
 _print_string () {
     local key=$(_get_idx $1); shift
     local start=$(_get_idx $1); shift
@@ -155,11 +172,11 @@ _print_string () {
         then
             p="----"
         else
-            p="$(_get_note $(_get_distance $key $pnum) $TMP/intervals)$p"
+            p="$p"
         fi
         case $fret in
         0|12) printf "$fret_fmt" "$p|" ;;
-        3|5|7|9) printf "$fret_fmt" "$p " ;;
+        3|5|7|9) printf "$fret_fmt" "$p)" ;;
         *) printf "$fret_fmt" "$p-" ;;
         esac
         fret=$(( $fret + 1 ))
@@ -171,13 +188,17 @@ _print_string () {
 key_id=$1
 key_name=$(_get_note $1)
 shift;
-_get_chord $key_id "$@" | tee $TMP/chord
+_get_chord $key_id "$@" >$TMP/chord
+for x in $(cat $TMP/notes)
+do
+    _print_interval $key_id $(_get_idx $x)
+done
+
 for string in e b g d a e
 do
     _print_string "$key_name" "=$string" $TMP/chord
 done
 
-_print_string "$key_name" "_b"
 
 
 # _get_note_offset $1 $2
